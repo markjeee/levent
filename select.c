@@ -51,12 +51,19 @@
 #endif
 
 #include "event.h"
+#include "evutil.h"
 #include "event-internal.h"
 #include "evsignal.h"
 #include "log.h"
 
 #ifndef howmany
 #define        howmany(x, y)   (((x)+((y)-1))/(y))
+#endif
+
+#ifndef _EVENT_HAVE_FD_MASK
+#undef NFDBITS
+#define NFDBITS (sizeof(long)*8)
+typedef unsigned long fd_mask;
 #endif
 
 struct selectop {

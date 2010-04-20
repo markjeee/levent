@@ -1,0 +1,44 @@
+diff --git a/libevent/configure.in b/libevent/configure.in
+index bc3eca1..620fd41 100644
+--- a/libevent/configure.in
++++ b/libevent/configure.in
+@@ -309,6 +309,14 @@ AC_CHECK_TYPES([uint64_t, uint32_t, uint16_t, uint8_t], , ,
+ #ifdef HAVE_SYS_TYPES_H
+ #include <sys/types.h>
+ #endif])
++AC_CHECK_TYPES([fd_mask], , ,
++[#ifdef HAVE_SYS_TYPES_H
++#include <sys/types.h>
++#endif
++#ifdef HAVE_SELECT_H
++#include <select.h>
++#endif])
++
+ AC_CHECK_SIZEOF(long long)
+ AC_CHECK_SIZEOF(int)
+ AC_CHECK_SIZEOF(short)
+diff --git a/libevent/select.c b/libevent/select.c
+index ca6639f..af5a879 100644
+--- a/libevent/select.c
++++ b/libevent/select.c
+@@ -51,6 +51,7 @@
+ #endif
+ 
+ #include "event.h"
++#include "evutil.h"
+ #include "event-internal.h"
+ #include "evsignal.h"
+ #include "log.h"
+@@ -59,6 +60,12 @@
+ #define        howmany(x, y)   (((x)+((y)-1))/(y))
+ #endif
+ 
++#ifndef _EVENT_HAVE_FD_MASK
++#undef NFDBITS
++#define NFDBITS (sizeof(long)*8)
++typedef unsigned long fd_mask;
++#endif
++
+ struct selectop {
+ 	int event_fds;		/* Highest fd in fd set */
+ 	int event_fdsz;
